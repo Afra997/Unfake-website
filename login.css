@@ -1,0 +1,87 @@
+/* login.css */
+
+#user-type-selector {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  /* Base styles for each button */
+  .user-type-btn {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border: 2px solid #e5e7eb; /* gray-200 */
+    border-radius: 0.75rem; /* rounded-xl */
+    background-color: #f9fafb; /* gray-50 */
+    cursor: pointer;
+    font-weight: 600; /* semibold */
+    color: #374151; /* gray-700 */
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Hover state: changes border and background */
+  .user-type-btn:hover {
+    border-color: #7dd3fc; /* sky-300 */
+    background-color: #f0f9ff; /* sky-50 */
+  }
+  
+  /* Styles for the selected button */
+  .user-type-btn.selected {
+    border-color: #0ea5e9; /* sky-500 */
+    background-color: #e0f2fe; /* sky-100 */
+    color: #0c4a6e; /* sky-900 */
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(14, 165, 233, 0.15);
+  }
+  
+  /* Icon styles */
+  .user-type-btn .icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 0.5rem;
+    color: #9ca3af; /* gray-400 */
+    transition: color 0.3s ease;
+  }
+  
+  .user-type-btn:hover .icon {
+    color: #38bdf8; /* sky-400 */
+  }
+  
+  .user-type-btn.selected .icon {
+    color: #0ea5e9; /* sky-500 */
+  }
+  
+  .user-type-btn .role-name {
+    font-size: 1rem; /* text-base */
+  }
+  
+  /* The checkmark that appears on the selected button */
+  .user-type-btn::after {
+    content: '✔';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1rem;
+    color: white;
+    background-color: #0ea5e9; /* sky-500 */
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Makes the checkmark visible when selected */
+  .user-type-btn.selected::after {
+    opacity: 1;
+    transform: scale(1);
+  }

@@ -1,0 +1,27 @@
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.07);
+  }
+  
+  .table-row:hover {
+    background-color: #f0f9ff; /* sky-50 */
+  }
+  
+  .user-action-btn {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  
+  .user-action-btn:hover {
+    transform: scale(1.05);
+  }
+  
+  
+  
+  
+  .moderation-card:hover {
+    border-left-color: #0ea5e9; /* sky-500 */
+  }
+  
+  .flag-btn:hover {
+    transform: scale(1.05);
+  }

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Post Moderation - UNFAKE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-20">
+        <nav class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="admindash.html" class="text-3xl font-bold text-sky-600">UNFAKE <span class="text-red-500">Admin</span></a>
+            <div class="flex items-center space-x-6">
+                <a href="admindash.html" class="font-semibold text-gray-600 hover:text-sky-600 transition">Dashboard</a>
+                <a href="admin.html" class="font-semibold text-sky-600 border-b-2 border-sky-600 pb-1">Moderation</a>
+                <a href="index.html" class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">Post Moderation</h2>
+            <input type="text" placeholder="Search posts..." class="w-1/2 p-2 border border-gray-300 rounded-lg search-bar">
+        </div>
+
+        <!-- Pending Post 1 -->
+        <div class="bg-white p-5 rounded-xl shadow-lg mb-6 border-l-4 border-yellow-400 moderation-card transition-all">
+            <h3 class="text-xl font-bold text-gray-900">New virus spreads from imported fish?</h3>
+            <p class="text-sm text-gray-500 my-2">Source: <a href="#" target="_blank" class="text-sky-600 hover:underline">some-news-site.co</a> | User: <span class="font-semibold">user123@test.com</span></p>
+            <p class="text-gray-700 bg-gray-50 p-3 rounded-lg">"My uncle sent me a link saying that a new deadly virus is spreading from imported fish in the market. Is this something to worry about?"</p>
+            <div class="flex items-center gap-3 mt-4">
+                <button class="flag-btn bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition">Flag True</button>
+                <button class="flag-btn bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition">Flag False</button>
+                <button class="flag-btn bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition">Delete</button>
+            </div>
+            <div class="flag-reason-box hidden mt-3">
+                <textarea class="w-full p-2 border border-gray-300 rounded-lg mb-2" rows="2" placeholder="Add reason for flag..."></textarea>
+                <button class="submit-reason-btn bg-sky-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-700 transition">Submit Reason</button>
+            </div>
+            <div class="flex items-center gap-3 mt-2">
+                <button class="ban-btn bg-red-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-800 transition">Ban User</button>
+            </div>
+        </div>
+
+         <!-- Pending Post 2 -->
+        <div class="bg-white p-5 rounded-xl shadow-lg mb-6 border-l-4 border-yellow-400 moderation-card transition-all">
+            <h3 class="text-xl font-bold text-gray-900">Free Laptops for Students?</h3>
+            <p class="text-sm text-gray-500 my-2">Source: <a href="#" target="_blank" class="text-sky-600 hover:underline">WhatsApp Forward</a> | User: <span class="font-semibold">student_hope@test.com</span></p>
+            <p class="text-gray-700 bg-gray-50 p-3 rounded-lg">"Forwarded many times: Government is giving free laptops to all students who register on this link. Seems too good to be true."</p>
+            <div class="flex items-center gap-3 mt-4">
+                <button class="flag-btn bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition">Flag True</button>
+                <button class="flag-btn bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition">Flag False</button>
+                <button class="flag-btn bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition">Delete</button>
+            </div>
+            <div class="flag-reason-box hidden mt-3">
+                <textarea class="w-full p-2 border border-gray-300 rounded-lg mb-2" rows="2" placeholder="Add reason for flag..."></textarea>
+                <button class="submit-reason-btn bg-sky-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-700 transition">Submit Reason</button>
+            </div>
+            <div class="flex items-center gap-3 mt-2">
+                <button class="ban-btn bg-red-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-800 transition">Ban User</button>
+            </div>
+        </div>
+
+    </main>
+    <script src="scripts.js"></script>
+</body>
+</html>

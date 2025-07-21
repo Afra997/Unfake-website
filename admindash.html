@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - UNFAKE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="admindash.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-20">
+        <nav class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="admindash.html" class="text-3xl font-bold text-sky-600">UNFAKE <span class="text-red-500">Admin</span></a>
+            <div class="flex items-center space-x-6">
+                <a href="admindash.html" class="font-semibold text-sky-600 border-b-2 border-sky-600 pb-1">Dashboard</a>
+                <a href="admin.html" class="font-semibold text-gray-600 hover:text-sky-600 transition">Moderation</a>
+                <a href="index.html" class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard Overview</h2>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-lg transition-all stat-card">
+                <p class="text-sm font-semibold text-gray-500">Total Users</p>
+                <p class="text-4xl font-extrabold text-sky-600 mt-2">1,421</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg transition-all stat-card">
+                <p class="text-sm font-semibold text-gray-500">Pending Posts</p>
+                <p class="text-4xl font-extrabold text-yellow-500 mt-2">12</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg transition-all stat-card">
+                <p class="text-sm font-semibold text-gray-500">Flagged True</p>
+                <p class="text-4xl font-extrabold text-green-500 mt-2">318</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg transition-all stat-card">
+                <p class="text-sm font-semibold text-gray-500">Flagged False</p>
+                <p class="text-4xl font-extrabold text-red-500 mt-2">524</p>
+            </div>
+        </div>
+
+        <!-- Graph -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-8" style="max-width: 500px; margin: 0 auto;">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Weekly Statistics</h3>
+            <canvas id="statsChart" width="400" height="250" style="display: block;"></canvas>
+        </div>
+        
+        <!-- User Management Table -->
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">User Management</h3>
+            <input type="text" placeholder="Search for a user by email or name..." class="w-full p-3 mb-4 border border-gray-300 rounded-lg search-bar">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b bg-gray-50">
+                            <th class="p-3">User</th>
+                            <th class="p-3">Posts</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b table-row">
+                            <td class="p-3 font-medium">john.doe@example.com</td>
+                            <td class="p-3">15</td>
+                            <td class="p-3"><span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">Active</span></td>
+                            <td class="p-3 text-center space-x-2">
+                                <button class="user-action-btn bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-1 px-3 rounded">Temp Ban</button>
+                                <button class="user-action-btn bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded">Perm Ban</button>
+                                <button class="user-action-btn bg-gray-400 hover:bg-gray-500 text-white font-bold py-1 px-3 rounded">Posts</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b table-row">
+                            <td class="p-3 font-medium">trolled99@gmail.com</td>
+                            <td class="p-3">4</td>
+                            <td class="p-3"><span class="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">Banned</span></td>
+                            <td class="p-3 text-center space-x-2">
+                                <button class="user-action-btn bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded">Unban</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <script src="scripts.js"></script>
+</body>
+</html>

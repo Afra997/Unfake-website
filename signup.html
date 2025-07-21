@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UNFAKE - Sign Up</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    @import url('https://rsms.me/inter/inter.css');
+  </style>
+</head>
+<body class="bg-sky-50 flex flex-col items-center justify-center min-h-screen px-4">
+  <div class="text-center mb-8">
+      <a href="index.html" class="text-4xl font-bold text-sky-600">UNFAKE</a>
+  </div>
+  <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Create Your Account</h2>
+    <form id="signupForm">
+      <div class="mb-4">
+        <label class="block mb-1 text-sm font-medium text-gray-700">Full Name</label>
+        <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500" required>
+      </div>
+      <div class="mb-4">
+        <label class="block mb-1 text-sm font-medium text-gray-700">Email</label>
+        <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500" required>
+      </div>
+      <div class="mb-6">
+        <label class="block mb-1 text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500" required>
+      </div>
+      <div class="flex justify-center">
+          <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-700 transition transform hover:-translate-y-0.5 shadow-md hover:shadow-lg">Sign Up</button>
+      </div>
+    </form>
+    <p class="text-center mt-6 text-sm">Already have an account? <a href="login.html" class="text-sky-600 font-semibold hover:underline">Log in</a></p>
+  </div>
+   <footer class="text-center mt-8 py-6 text-sm text-gray-500">
+    © 2025 UNFAKE
+  </footer>
+</body>
+</html>

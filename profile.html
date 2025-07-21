@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UNFAKE - Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body class="bg-sky-50 min-h-screen flex flex-col items-center py-10">
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8">
+        <h1 class="text-3xl font-bold text-sky-700 mb-6 text-center">Profile Settings</h1>
+        <!-- Change Username/Password Form -->
+        <form id="profileForm" class="mb-8">
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-1" for="new-username">New Username</label>
+                <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-500 transition" type="text" id="new-username" placeholder="Enter new username" />
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-1" for="new-password">New Password</label>
+                <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-500 transition" type="password" id="new-password" placeholder="Enter new password" />
+            </div>
+            <div class="flex justify-center">
+                <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-700 transition">Update Profile</button>
+            </div>
+            <div id="profile-success" class="text-green-600 text-center mt-2 hidden">Profile updated successfully!</div>
+        </form>
+        <!-- User Posts Section -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Your Posts</h2>
+        <div id="user-posts" class="space-y-4">
+            <!-- Example Post Card -->
+            <div class="bg-sky-100 rounded-lg p-4 flex justify-between items-center">
+                <div>
+                    <div class="font-semibold text-gray-700">Post Title Example</div>
+                    <div class="text-gray-500 text-sm">This is a sample post content.</div>
+                </div>
+                <div class="flex gap-2">
+                    <button class="edit-post-btn bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded">Edit</button>
+                    <button class="delete-post-btn bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Delete</button>
+                </div>
+            </div>
+            <!-- More posts will be dynamically added here -->
+        </div>
+    </div>
+    <script src="scripts.js"></script>
+    <script>
+    // Demo: Show success message on profile update
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        document.getElementById('profile-success').classList.remove('hidden');
+        setTimeout(() => {
+            document.getElementById('profile-success').classList.add('hidden');
+        }, 2000);
+    });
+    // Demo: Edit/Delete post actions
+    document.querySelectorAll('.edit-post-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            alert('Edit post functionality coming soon!');
+        });
+    });
+    document.querySelectorAll('.delete-post-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.closest('.bg-sky-100').remove();
+        });
+    });
+    </script>
+</body>
+</html> 

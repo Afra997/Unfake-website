@@ -1,0 +1,24 @@
+.vote-btn {
+    transition: all 0.2s ease;
+  }
+  
+  .vote-btn:hover {
+    transform: scale(1.05);
+  }
+  
+  .vote-btn:disabled {
+    cursor: not-allowed;
+    filter: grayscale(60%);
+  }
+  
+  .admin-reason {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, padding 0.5s ease;
+    padding: 0 1rem;
+  }
+  
+  .admin-reason.show {
+    max-height: 200px; /* Adjust as needed */
+    padding: 1rem;
+  }

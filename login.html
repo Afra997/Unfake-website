@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UNFAKE - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icon Library (Feather Icons) - Must be included -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen px-4 bg-sky-50">
+    <div class="text-center mb-6">
+        <a href="index.html" class="text-5xl font-extrabold text-sky-600">UNFAKE</a>
+        <p class="text-gray-500 mt-2">Login to continue your journey against misinformation</p>
+    </div>
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <form id="loginForm">
+            <!-- START: Role Selector -->
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-center text-gray-800 mb-4">Select Your Role</h2>
+                <div id="user-type-selector">
+                    <!-- The 'selected' class makes User the default choice -->
+                    <div data-type="user" class="user-type-btn selected" tabindex="0">
+                        <i data-feather="users" class="icon"></i>
+                        <span class="role-name">User</span>
+                    </div>
+                    <div data-type="admin" class="user-type-btn" tabindex="0">
+                        <i data-feather="shield" class="icon"></i>
+                        <span class="role-name">Admin</span>
+                    </div>
+                </div>
+                <!-- This hidden input stores the selected role -->
+                <input type="hidden" id="user-type" value="user">
+                <!-- Error message area -->
+                <div id="login-error" class="text-red-600 text-center mt-2 hidden"></div>
+            </div>
+            <!-- END: Role Selector -->
+
+            <div class="mb-4">
+                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-500 transition" type="text" id="username" placeholder="Enter username" required />
+            </div>
+            <div class="mb-6">
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-500 transition" type="password" id="password" placeholder="Enter password" required />
+            </div>
+            <div class="flex justify-center">
+                <button type="submit" class="bg-sky-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-700 transition transform hover:-translate-y-0.5 shadow-md hover:shadow-lg">Log In</button>
+            </div>
+        </form>
+        <p class="text-center mt-6 text-sm">Don't have an account? <a href="signup.html" class="text-sky-600 font-semibold hover:underline">Sign Up</a></p>
+    </div>
+
+    <!-- This script makes the page interactive -->
+    <script src="scripts.js"></script>
+    <script>
+        // This line is essential to render the icons
+        feather.replace();
+    </script>
+</body>
+</html>

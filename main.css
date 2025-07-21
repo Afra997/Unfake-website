@@ -1,0 +1,43 @@
+@import url('https://rsms.me/inter/inter.css');
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f0f9ff; /* sky-50 */
+}
+
+.search-bar:focus {
+  border-color: #0ea5e9; /* sky-500 */
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+/* Profile page enhancements */
+.profile-card {
+    box-shadow: 0 4px 24px 0 rgba(0, 120, 212, 0.08);
+    border-radius: 1.25rem;
+    background: #fff;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+.profile-form input {
+    margin-bottom: 1rem;
+}
+.profile-form button {
+    margin-top: 1rem;
+}
+.profile-post-card {
+    background: #e0f2fe;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.profile-post-card .edit-post-btn {
+    background: #facc15;
+    color: #fff;
+}
+.profile-post-card .delete-post-btn {
+    background: #ef4444;
+    color: #fff;
+}
