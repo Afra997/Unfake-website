@@ -5,9 +5,64 @@
  */
 const supabaseUrl = 'https://ucrghvoeejswrmgmyoat.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjcmdodm9lZWpzd3JtZ215b2F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMzAwNzEsImV4cCI6MjA2ODcwNjA3MX0.vFtRrtAOcs9xp5mr8FLFAS-oqnSyhPyfBSYVZaz9zJI';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+// Avoid shadowing the global `supabase` from the CDN
+const sb = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    //================================================
+    // 0. AUTH HELPERS, GUARDS, AND LOGOUT
+    //================================================
+    const requireAuthOnPages = ['dashboard.html', 'submit.html', 'profile.html', 'admin.html', 'admindash.html'];
+
+    function getCurrentPathName() {
+        return window.location.pathname.split('/').pop();
+    }
+
+    async function getSessionAndUser() {
+        const { data: sessionData } = await sb.auth.getSession();
+        const session = sessionData ? sessionData.session : null;
+        const user = session ? session.user : null;
+        return { session, user };
+    }
+
+    function isAdminUser(user) {
+        if (!user) return false;
+        // Expect role in user.user_metadata.role === 'admin'.
+        const role = user.user_metadata && user.user_metadata.role;
+        return role === 'admin';
+    }
+
+    // Guard protected pages
+    (async () => {
+        const current = getCurrentPathName();
+        if (requireAuthOnPages.includes(current)) {
+            const { user } = await getSessionAndUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            // Admin-only pages
+            if ((current === 'admin.html' || current === 'admindash.html') && !isAdminUser(user)) {
+                alert('Admin access required.');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+        }
+    })();
+
+    // Logout links
+    document.querySelectorAll('a').forEach(a => {
+        if (a.textContent && a.textContent.trim().toLowerCase() === 'logout') {
+            a.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await sb.auth.signOut();
+                } catch {}
+                window.location.href = 'index.html';
+            });
+        }
+    });
 
     //================================================
     // 1. LOGIN PAGE LOGIC (`login.html`)
@@ -35,28 +90,37 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // This is the SUBMIT event that uses the selected role for login
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault(); // Stop the form from reloading the page
-            
-            const username = document.getElementById('username').value;
+        // This is the SUBMIT event that logs in with Supabase
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('username').value; // Treat "username" field as email
             const password = document.getElementById('password').value;
-            const selectedRole = userTypeInput.value; // Get the role from our hidden input
+            const selectedRole = userTypeInput.value;
             const errorDiv = document.getElementById('login-error');
 
-            // Hide error by default
             errorDiv.classList.add('hidden');
             errorDiv.textContent = '';
 
-            // Check credentials based on the selected role
-            if (selectedRole === 'admin' && username === 'admin' && password === 'admin123') {
-                window.location.href = 'admin.html';
-            } else if (selectedRole === 'user' && username === 'user' && password === 'user123') {
-                window.location.href = 'dashboard.html';
-            } else {
-                // Show error message in the error area
-                errorDiv.textContent = `Login failed! Please check your credentials for the "${selectedRole}" role.`;
+            const { data, error } = await sb.auth.signInWithPassword({ email, password });
+            if (error) {
+                errorDiv.textContent = error.message;
                 errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            const user = data.user;
+            const admin = isAdminUser(user);
+            if (selectedRole === 'admin' && !admin) {
+                errorDiv.textContent = 'You are not an admin. Contact support to request access.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (admin) {
+                window.location.href = 'admindash.html';
+            } else {
+                window.location.href = 'dashboard.html';
             }
         });
     }
@@ -190,10 +254,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. ADMIN DASHBOARD LOGIC (`admindash.html`)
     //================================================
     // Call this when the signup form is submitted
-    async function signUpUser(email, password) {
-        const { data, error } = await supabase.auth.signUp({
-        email,
-        password
+    async function signUpUser(email, password, fullName) {
+        const { data, error } = await sb.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    full_name: fullName || null,
+                    role: 'user'
+                }
+            }
         });
         if (error) {
         alert(error.message);
@@ -291,20 +361,57 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            // Optional: collect name if you want to store it
-            // const name = document.getElementById('name').value;
+            const name = (document.getElementById('name') && document.getElementById('name').value) || null;
 
-            const { data, error } = await supabase.auth.signUp({
+            const { error } = await sb.auth.signUp({
                 email,
-                password
+                password,
+                options: { data: { full_name: name, role: 'user' } }
             });
 
             if (error) {
                 alert(error.message);
             } else {
                 alert('Check your email for a confirmation link!');
-                // Optionally redirect to login page
                 // window.location.href = 'login.html';
+            }
+        });
+    }
+
+    // SUBMIT PAGE LOGIC
+    const newsForm = document.getElementById('newsForm');
+    if (newsForm) {
+        newsForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const title = document.getElementById('title').value;
+            const source = document.getElementById('source').value;
+            const description = document.getElementById('description').value;
+
+            const { user } = await (async () => {
+                const { data } = await sb.auth.getUser();
+                return { user: data && data.user ? data.user : null };
+            })();
+
+            if (!user) {
+                alert('Please log in to submit a post.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const { error } = await sb.from('posts').insert([
+                {
+                    title: title,
+                    source: source,
+                    description: description,
+                    user_id: user.id
+                }
+            ]);
+
+            if (error) {
+                alert('Error submitting post: ' + error.message);
+            } else {
+                alert('Your post has been submitted and is pending admin review. Thank you!');
+                e.target.reset();
             }
         });
     }
