@@ -46,38 +46,38 @@
     </div>
   </main>
 
+  <script src="supabaseClient.js"></script>
   <script>
-    // Initialize Supabase client
-    const supabaseUrl = 'https://ucrghvoeejswrmgmyoat.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjcmdodm9lZWpzd3JtZ215b2F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMzAwNzEsImV4cCI6MjA2ODcwNjA3MX0.vFtRrtAOcs9xp5mr8FLFAS-oqnSyhPyfBSYVZaz9zJI';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    // Require auth to submit
+    (async function enforceAuth() {
+      try {
+        var sess = await window.sb.auth.getUser();
+        if (!sess || !sess.data || !sess.data.user) {
+          window.location.href = 'login.html';
+        }
+      } catch (e) {
+        window.location.href = 'login.html';
+      }
+    })();
 
     document.getElementById('newsForm').addEventListener('submit', async function (e) {
       e.preventDefault();
-      const title = document.getElementById('title').value;
-      const source = document.getElementById('source').value;
-      const description = document.getElementById('description').value;
+      var title = document.getElementById('title').value;
+      var source = document.getElementById('source').value;
+      var description = document.getElementById('description').value;
 
-      // Optionally get user_id if using authentication
-      let user_id = null;
+      var user_id = null;
       try {
-        const { data: userData } = await supabase.auth.getUser();
-        if (userData && userData.user) {
-          user_id = userData.user.id;
+        var userResp = await window.sb.auth.getUser();
+        if (userResp && userResp.data && userResp.data.user) {
+          user_id = userResp.data.user.id;
         }
-      } catch {}
+      } catch (err) {}
 
-      const { error } = await supabase.from('posts').insert([
-        {
-          title: title,
-          source: source,
-          description: description,
-          user_id: user_id
-        }
-      ]);
+      var insert = await window.sb.from('posts').insert([{ title: title, source: source, description: description, user_id: user_id }]);
 
-      if (error) {
-        alert('Error submitting post: ' + error.message);
+      if (insert.error) {
+        alert('Error submitting post: ' + insert.error.message);
       } else {
         alert('Your post has been submitted and is pending admin review. Thank you!');
         e.target.reset();
