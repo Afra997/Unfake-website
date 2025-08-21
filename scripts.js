@@ -3,12 +3,17 @@
  * This file handles interactivity for all pages.
  * It is wrapped in a DOMContentLoaded listener to ensure the HTML is loaded before the script runs.
  */
+const supabaseUrl = 'https://ucrghvoeejswrmgmyoat.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjcmdodm9lZWpzd3JtZ215b2F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMzAwNzEsImV4cCI6MjA2ODcwNjA3MX0.vFtRrtAOcs9xp5mr8FLFAS-oqnSyhPyfBSYVZaz9zJI';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
 document.addEventListener('DOMContentLoaded', () => {
 
     //================================================
     // 1. LOGIN PAGE LOGIC (`login.html`)
     //================================================
     const loginForm = document.getElementById('loginForm');
+    
 
     // This 'if' block ensures this code only runs on the login page
     if (loginForm) {
@@ -180,6 +185,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
+    //================================================
+    // 4. ADMIN DASHBOARD LOGIC (`admindash.html`)
+    //================================================
+    // Call this when the signup form is submitted
+    async function signUpUser(email, password) {
+        const { data, error } = await supabase.auth.signUp({
+        email,
+        password
+        });
+        if (error) {
+        alert(error.message);
+        } else {
+        alert('Check your email for a confirmation link!');
+        // Optionally redirect to login page
+        // window.location.href = 'login.html';
+        }
+    }
+
+
+
     //================================================
     // 4. GLOBAL ICON RENDERING
     //================================================
@@ -254,6 +280,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     card.appendChild(reasonDiv);
                 }
                 reasonDiv.textContent = `Flagged ${flagType === 'true' ? 'True' : 'False'}: ${reason}`;
+            }
+        });
+    }
+
+    // SIGNUP PAGE LOGIC
+    const signupForm = document.getElementById('signupForm');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            // Optional: collect name if you want to store it
+            // const name = document.getElementById('name').value;
+
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password
+            });
+
+            if (error) {
+                alert(error.message);
+            } else {
+                alert('Check your email for a confirmation link!');
+                // Optionally redirect to login page
+                // window.location.href = 'login.html';
             }
         });
     }

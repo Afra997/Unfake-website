@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UNFAKE - Submit News</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
     body { font-family: 'Inter', sans-serif; }
     @import url('https://rsms.me/inter/inter.css');
@@ -46,11 +47,41 @@
   </main>
 
   <script>
+    // Initialize Supabase client
+    const supabaseUrl = 'https://ucrghvoeejswrmgmyoat.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjcmdodm9lZWpzd3JtZ215b2F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMzAwNzEsImV4cCI6MjA2ODcwNjA3MX0.vFtRrtAOcs9xp5mr8FLFAS-oqnSyhPyfBSYVZaz9zJI';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
     document.getElementById('newsForm').addEventListener('submit', async function (e) {
       e.preventDefault();
-      alert('Your post has been submitted and is pending admin review. Thank you!');
-      // Reset form after submission
-      e.target.reset();
+      const title = document.getElementById('title').value;
+      const source = document.getElementById('source').value;
+      const description = document.getElementById('description').value;
+
+      // Optionally get user_id if using authentication
+      let user_id = null;
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData && userData.user) {
+          user_id = userData.user.id;
+        }
+      } catch {}
+
+      const { error } = await supabase.from('posts').insert([
+        {
+          title: title,
+          source: source,
+          description: description,
+          user_id: user_id
+        }
+      ]);
+
+      if (error) {
+        alert('Error submitting post: ' + error.message);
+      } else {
+        alert('Your post has been submitted and is pending admin review. Thank you!');
+        e.target.reset();
+      }
     });
   </script>
 </body>
