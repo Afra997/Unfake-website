@@ -517,48 +517,66 @@ function renderAdminFeedPosts(posts) {
 }
 
 function addAdminFeedActionListeners() {
+    // Listener for Flag True/False and Delete buttons
     document.querySelectorAll('.admin-feed-btn').forEach(btn => {
         btn.addEventListener('click', async e => {
             const { postId, action } = e.target.dataset;
             const postContainer = e.target.closest('.post-container');
+
             if (action === 'delete') {
                 if (!confirm('Are you sure you want to delete this post permanently?')) return;
                 try {
-                    const response = await fetch(`${API_URL}/admin/posts/${postId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${getToken()}` } });
-                    if (!response.ok) throw new Error((await response.json()).message || 'Failed to delete');
+                    const response = await fetch(`${API_URL}/admin/posts/${postId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${getToken()}` }
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Failed to delete');
+                    }
                     postContainer.remove();
                 } catch (error) {
                     alert(`Error: ${error.message}`);
                 }
-            } else {
+            } else { // It's a flag action
                 const reasonBox = postContainer.querySelector('.flag-reason-box');
                 reasonBox.classList.remove('hidden');
                 reasonBox.querySelector('.submit-reason-btn').dataset.action = action;
             }
         });
     });
+
+    // Listener for the "Submit Reason" buttons
     document.querySelectorAll('.submit-reason-btn').forEach(btn => {
         btn.addEventListener('click', async e => {
             const reasonBox = e.target.closest('.flag-reason-box');
             const postId = reasonBox.dataset.postId;
             const action = e.target.dataset.action;
             const reason = reasonBox.querySelector('textarea').value;
+
             if (!reason) return alert('Please provide a reason for the flag.');
+
             const adminFlag = action === 'flag-true' ? 'true' : 'false';
+
             try {
                 const response = await fetch(`${API_URL}/admin/posts/${postId}/moderate`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
                     body: JSON.stringify({ adminFlag, adminReason: reason })
                 });
+
+                // THIS IS THE CORRECTED ERROR HANDLING
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Failed to update flag.');
                 }
+                
                 reasonBox.classList.add('hidden');
                 alert('Post flag updated successfully!');
                 fetchAndRenderAdminFeed(`${API_URL}/posts`);
+
             } catch (error) {
+                // This alert will now show the REAL error message from the server
                 alert(`Error: ${error.message}`);
             }
         });
