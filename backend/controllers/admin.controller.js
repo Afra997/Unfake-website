@@ -22,6 +22,7 @@ exports.getPendingPosts = async (req, res) => {
 // Moderate a specific post (approve, flag true, flag false)
 exports.moderatePost = async (req, res) => {
   try {
+    // Get all possible fields from the request body
     const { status, adminFlag, adminReason } = req.body;
     const postId = req.params.postId;
 
@@ -30,13 +31,32 @@ exports.moderatePost = async (req, res) => {
       return res.status(404).json({ message: 'Post not found' });
     }
 
-    if (status) post.status = status;
-    if (adminFlag) post.adminFlag = adminFlag;
-    if (adminReason) post.adminReason = adminReason;
+    // Create an object to hold only the fields we want to update
+    const updates = {};
+    if (status) updates.status = status;
+    if (adminFlag) updates.adminFlag = adminFlag;
+    
+    // This is the key change:
+    // We check if 'adminReason' was included in the request at all.
+    // This allows saving a reason, or clearing it with an empty string.
+    if (adminReason !== undefined) {
+      updates.adminReason = adminReason;
+    }
 
-    await post.save();
-    res.json(post);
+    // Atomically find the post and update it with the new data
+    const updatedPost = await Post.findByIdAndUpdate(postId, updates, { new: true });
+
+    // --- LOGGING --- (Ensure your logging logic is also here)
+    if (adminFlag) {
+        const logDetails = `Admin flagged post "${updatedPost.title.substring(0, 20)}..." as ${adminFlag}.`;
+        const newLog = new AdminLog({ admin: req.user.id, action: 'POST_MODERATED', details: logDetails });
+        await newLog.save();
+    }
+    // --- END LOGGING ---
+
+    res.json(updatedPost);
   } catch (err) {
+    console.error("Error in moderatePost:", err);
     res.status(500).send('Server Error');
   }
 };
