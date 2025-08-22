@@ -145,18 +145,19 @@ function renderPosts(posts) {
                 <button class="vote-btn bg-red-500 text-white w-32 px-4 py-2 rounded-lg font-semibold" data-post-id="${post._id}" data-vote-type="false">Vote False</button>
                 <div class="ml-auto text-sm text-right">
                     <span class="font-semibold">Admin Flag:</span> <strong class="${flagClass}">${post.adminFlag}</strong>
+                    
+                    <!-- NEW: The conditional "Why?" button -->
+                    ${ post.adminReason && post.adminReason.trim() !== '' ? `
+                        <button class="show-reason-btn text-sky-600 font-semibold ml-2 hover:underline" data-reason="${post.adminReason}">(Why?)</button>
+                    ` : '' }
                 </div>
             </div>
-            ${ (post.adminFlag === 'true' || post.adminFlag === 'false') && post.adminReason && post.adminReason.trim() !== '' ? `
-                <div class="admin-reason mt-4 bg-${post.adminFlag === 'true' ? 'green' : 'red'}-50 border-l-4 border-${post.adminFlag === 'true' ? 'green' : 'red'}-400 rounded-r-lg p-4">
-                    <p class="text-sm font-bold text-gray-800">Admin's Note:</p>
-                    <p class="text-sm text-gray-700 mt-1">${post.adminReason}</p>
-                </div>
-            ` : '' }
+            <!-- The old static "Admin's Note" div has been completely removed -->
         `;
         feedContainer.appendChild(postElement);
     });
     addVoteListeners();
+    addShowReasonListeners(); // <-- We will call our new listener function here
 }
 
 async function handleSearch(e) {
@@ -198,6 +199,21 @@ function addVoteListeners() {
                 console.error('Vote Error:', error);
                 alert(`Error: ${error.message}`);
             }
+        });
+    });
+}
+
+// =================================================================
+// NEW EVENT LISTENER FOR "WHY?" BUTTONS
+// =================================================================
+function addShowReasonListeners() {
+    document.querySelectorAll('.show-reason-btn').forEach(button => {
+        // We add a listener to each "Why?" button that appears on the page
+        button.addEventListener('click', e => {
+            // Get the reason text stored in the button's data-reason attribute
+            const reason = e.target.dataset.reason;
+            // Display the reason in a simple, clean popup
+            alert(`Admin's Note:\n\n${reason}`);
         });
     });
 }
