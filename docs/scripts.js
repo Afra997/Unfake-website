@@ -1,7 +1,3 @@
-// =================================================================
-// UNFAKE - FINAL, COMPLETE, AND CORRECTED SCRIPT
-// =================================================================
-
 const API_URL = 'https://unfake-website.onrender.com/api';
 
 // Helper to get the token from browser's local storage
@@ -31,12 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // =================================================================
-// 1. LOGIN PAGE (`login.html`)
+// LOGIN PAGE
 // =================================================================
 function initializeLoginPage() {
     const loginForm = document.getElementById('loginForm');
     if (!loginForm) return;
-
     const userTypeSelector = document.getElementById('user-type-selector');
     const userTypeBtns = userTypeSelector.querySelectorAll('.user-type-btn');
     const userTypeInput = document.getElementById('user-type');
@@ -47,14 +42,12 @@ function initializeLoginPage() {
             userTypeInput.value = btn.dataset.type;
         });
     });
-
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const errorDiv = document.getElementById('login-error');
         errorDiv.classList.add('hidden');
-
         try {
             const response = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
@@ -63,10 +56,8 @@ function initializeLoginPage() {
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Login failed!');
-
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
-
             if (data.user.role === 'admin') {
                 window.location.href = 'admindash.html';
             } else {
@@ -81,18 +72,16 @@ function initializeLoginPage() {
 }
 
 // =================================================================
-// 2. SIGNUP PAGE (`signup.html`)
+// SIGNUP PAGE
 // =================================================================
 function initializeSignupPage() {
     const signupForm = document.getElementById('signupForm');
     if (!signupForm) return;
-
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('name').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-
         try {
             const response = await fetch(`${API_URL}/auth/signup`, {
                 method: 'POST',
@@ -113,13 +102,11 @@ function initializeSignupPage() {
 }
 
 // =================================================================
-// 3. USER DASHBOARD (`dashboard.html`)
+// USER DASHBOARD
 // =================================================================
 async function initializeDashboardPage() {
     if (!getToken()) return window.location.href = 'login.html';
-    
     document.querySelector('.search-bar').addEventListener('keyup', handleSearch);
-    
     try {
         const response = await fetch(`${API_URL}/posts`);
         renderPosts(await response.json());
@@ -160,18 +147,12 @@ function renderPosts(posts) {
                     <span class="font-semibold">Admin Flag:</span> <strong class="${flagClass}">${post.adminFlag}</strong>
                 </div>
             </div>
-
-            <!-- THIS IS THE NEWLY ADDED BLOCK -->
-            ${
-              (post.adminFlag === 'true' || post.adminFlag === 'false') && post.adminReason && post.adminReason.trim() !== ''
-                ? `
+            ${ (post.adminFlag === 'true' || post.adminFlag === 'false') && post.adminReason && post.adminReason.trim() !== '' ? `
                 <div class="admin-reason mt-4 bg-${post.adminFlag === 'true' ? 'green' : 'red'}-50 border-l-4 border-${post.adminFlag === 'true' ? 'green' : 'red'}-400 rounded-r-lg p-4">
                     <p class="text-sm font-bold text-gray-800">Admin's Note:</p>
                     <p class="text-sm text-gray-700 mt-1">${post.adminReason}</p>
                 </div>
-                `
-                : ''
-            }
+            ` : '' }
         `;
         feedContainer.appendChild(postElement);
     });
@@ -222,12 +203,11 @@ function addVoteListeners() {
 }
 
 // =================================================================
-// 4. SUBMIT POST PAGE (`submit.html`)
+// SUBMIT POST PAGE
 // =================================================================
 function initializeSubmitPage() {
     const newsForm = document.getElementById('newsForm');
     if (!newsForm) return;
-
     newsForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const title = document.getElementById('title').value;
@@ -250,12 +230,10 @@ function initializeSubmitPage() {
 }
 
 // =================================================================
-// 5. ADMIN DASHBOARD (`admindash.html`)
+// ADMIN DASHBOARD
 // =================================================================
 async function initializeAdminDashboard() {
     if (!getToken()) return window.location.href = 'login.html';
-    
-    // Fetch Stats
     try {
         const response = await fetch(`${API_URL}/admin/stats`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
         const stats = await response.json();
@@ -266,8 +244,6 @@ async function initializeAdminDashboard() {
     } catch (error) {
         console.error('Failed to fetch admin stats:', error);
     }
-
-    // User Table
     const fetchUsers = async (query = '') => {
         try {
             const response = await fetch(`${API_URL}/admin/users?q=${query}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
@@ -278,8 +254,6 @@ async function initializeAdminDashboard() {
     };
     fetchUsers();
     document.querySelector('#user-management .search-bar').addEventListener('keyup', (e) => fetchUsers(e.target.value.trim()));
-
-    // All Posts Table
     const fetchAllPosts = async (query = '') => {
         try {
             const response = await fetch(`${API_URL}/admin/posts?q=${query}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
@@ -290,8 +264,6 @@ async function initializeAdminDashboard() {
     };
     fetchAllPosts();
     document.getElementById('post-search-bar').addEventListener('keyup', (e) => fetchAllPosts(e.target.value.trim()));
-
-    // Initialize Logs and Charts
     initializeAdminLog(); 
     initializeUserPieChart(); 
 }
@@ -310,17 +282,9 @@ function renderUsers(users) {
         } else if (user.status.includes('banned')) {
             actionButtons = `<button class="user-action-btn bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded" data-user-id="${user._id}" data-action="unban">Unban</button>`;
         } else {
-            actionButtons = `
-                <button class="user-action-btn bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-1 px-3 rounded" data-user-id="${user._id}" data-action="temp-ban">Temp Ban</button>
-                <button class="user-action-btn bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded" data-user-id="${user._id}" data-action="perm-ban">Perm Ban</button>
-            `;
+            actionButtons = `<button class="user-action-btn bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-1 px-3 rounded" data-user-id="${user._id}" data-action="temp-ban">Temp Ban</button><button class="user-action-btn bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded" data-user-id="${user._id}" data-action="perm-ban">Perm Ban</button>`;
         }
-        row.innerHTML = `
-            <td class="p-3 font-medium">${user.email}</td>
-            <td class="p-3 font-medium text-center">${user.trueVotesCount || 0} : ${user.falseVotesCount || 0}</td>
-            <td class="p-3"><span class="${statusClass} text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">${user.status}</span></td>
-            <td class="p-3 text-center space-x-2">${actionButtons}</td>
-        `;
+        row.innerHTML = `<td class="p-3 font-medium">${user.email}</td><td class="p-3 font-medium text-center">${user.trueVotesCount || 0} : ${user.falseVotesCount || 0}</td><td class="p-3"><span class="${statusClass} text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">${user.status}</span></td><td class="p-3 text-center space-x-2">${actionButtons}</td>`;
         tableBody.appendChild(row);
     });
     addUserActionListeners();
@@ -356,15 +320,7 @@ function renderAllPosts(posts) {
         row.className = 'border-b table-row';
         const statusClass = post.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
         const flagClass = post.adminFlag === 'true' ? 'text-green-600' : post.adminFlag === 'false' ? 'text-red-600' : 'text-gray-500';
-        row.innerHTML = `
-            <td class="p-3 font-medium" title="${post.title}">${post.title.substring(0, 30)}...</td>
-            <td class="p-3">${post.submittedBy?.username || 'N/A'}</td>
-            <td class="p-3"><span class="${statusClass} text-xs font-medium px-2.5 py-0.5 rounded-full">${post.status}</span></td>
-            <td class="p-3 font-semibold ${flagClass}">${post.adminFlag}</td>
-            <td class="p-3 text-center">
-                <button class="post-action-btn bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded" data-post-id="${post._id}" data-action="delete">Delete</button>
-            </td>
-        `;
+        row.innerHTML = `<td class="p-3 font-medium" title="${post.title}">${post.title.substring(0, 30)}...</td><td class="p-3">${post.submittedBy?.username || 'N/A'}</td><td class="p-3"><span class="${statusClass} text-xs font-medium px-2.5 py-0.5 rounded-full">${post.status}</span></td><td class="p-3 font-semibold ${flagClass}">${post.adminFlag}</td><td class="p-3 text-center"><button class="post-action-btn bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded" data-post-id="${post._id}" data-action="delete">Delete</button></td>`;
         tableBody.appendChild(row);
     });
     addPostActionListeners();
@@ -393,7 +349,7 @@ function addPostActionListeners() {
 }
 
 // =================================================================
-// 6. ADMIN MODERATION PAGE (`admin.html`)
+// ADMIN MODERATION PAGE
 // =================================================================
 async function initializeAdminModerationPage() {
     if (!getToken()) return window.location.href = 'login.html';
@@ -415,18 +371,7 @@ function renderPendingPosts(posts) {
     posts.forEach(post => {
         const card = document.createElement('div');
         card.className = 'bg-white p-5 rounded-xl shadow-lg mb-6 border-l-4 border-yellow-400 moderation-card transition-all';
-        card.innerHTML = `
-            <h3 class="text-xl font-bold text-gray-900">${post.title}</h3>
-            <p class="text-sm text-gray-500 my-2">Source: <a href="${post.source}" target="_blank" class="text-sky-600 hover:underline">${post.source}</a> | User: <span class="font-semibold">${post.submittedBy.email}</span></p>
-            <p class="text-gray-700 bg-gray-50 p-3 rounded-lg">${post.description}</p>
-            <div class="flex flex-wrap items-center gap-3 mt-4">
-                <button class="action-btn bg-sky-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-600" data-post-id="${post._id}" data-action="approve-only">Approve</button>
-                <button class="action-btn bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600" data-post-id="${post._id}" data-action="flag-true">Flag True</button>
-                <button class="action-btn bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600" data-post-id="${post._id}" data-action="flag-false">Flag False</button>
-                <button class="action-btn bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-600" data-post-id="${post._id}" data-action="delete">Delete</button>
-                <button class="action-btn bg-red-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-800" data-user-id="${post.submittedBy._id}" data-action="ban-user">Ban User</button>
-            </div>
-        `;
+        card.innerHTML = `<h3 class="text-xl font-bold text-gray-900">${post.title}</h3><p class="text-sm text-gray-500 my-2">Source: <a href="${post.source}" target="_blank" class="text-sky-600 hover:underline">${post.source}</a> | User: <span class="font-semibold">${post.submittedBy.email}</span></p><p class="text-gray-700 bg-gray-50 p-3 rounded-lg">${post.description}</p><div class="flex flex-wrap items-center gap-3 mt-4"><button class="action-btn bg-sky-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-600" data-post-id="${post._id}" data-action="approve-only">Approve</button><button class="action-btn bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600" data-post-id="${post._id}" data-action="flag-true">Flag True</button><button class="action-btn bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600" data-post-id="${post._id}" data-action="flag-false">Flag False</button><button class="action-btn bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-600" data-post-id="${post._id}" data-action="delete">Delete</button><button class="action-btn bg-red-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-800" data-user-id="${post.submittedBy._id}" data-action="ban-user">Ban User</button></div>`;
         mainContainer.appendChild(card);
     });
     addModerationActionListeners();
@@ -469,7 +414,7 @@ function addModerationActionListeners() {
 }
 
 // =================================================================
-// 7. ADMIN FEED PAGE (`adminfeed.html`)
+// ADMIN FEED PAGE
 // =================================================================
 async function initializeAdminFeedPage() {
     if (!getToken()) return window.location.href = 'login.html';
@@ -523,66 +468,48 @@ function renderAdminFeedPosts(posts) {
 }
 
 function addAdminFeedActionListeners() {
-    // Listener for Flag True/False and Delete buttons
     document.querySelectorAll('.admin-feed-btn').forEach(btn => {
         btn.addEventListener('click', async e => {
             const { postId, action } = e.target.dataset;
             const postContainer = e.target.closest('.post-container');
-
             if (action === 'delete') {
                 if (!confirm('Are you sure you want to delete this post permanently?')) return;
                 try {
-                    const response = await fetch(`${API_URL}/admin/posts/${postId}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${getToken()}` }
-                    });
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Failed to delete');
-                    }
+                    const response = await fetch(`${API_URL}/admin/posts/${postId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${getToken()}` } });
+                    if (!response.ok) throw new Error((await response.json()).message || 'Failed to delete');
                     postContainer.remove();
                 } catch (error) {
                     alert(`Error: ${error.message}`);
                 }
-            } else { // It's a flag action
+            } else {
                 const reasonBox = postContainer.querySelector('.flag-reason-box');
                 reasonBox.classList.remove('hidden');
                 reasonBox.querySelector('.submit-reason-btn').dataset.action = action;
             }
         });
     });
-
-    // Listener for the "Submit Reason" buttons
     document.querySelectorAll('.submit-reason-btn').forEach(btn => {
         btn.addEventListener('click', async e => {
             const reasonBox = e.target.closest('.flag-reason-box');
             const postId = reasonBox.dataset.postId;
             const action = e.target.dataset.action;
             const reason = reasonBox.querySelector('textarea').value;
-
             if (!reason) return alert('Please provide a reason for the flag.');
-
             const adminFlag = action === 'flag-true' ? 'true' : 'false';
-
             try {
                 const response = await fetch(`${API_URL}/admin/posts/${postId}/moderate`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
                     body: JSON.stringify({ adminFlag, adminReason: reason })
                 });
-
-                // THIS IS THE CORRECTED ERROR HANDLING
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Failed to update flag.');
                 }
-                
                 reasonBox.classList.add('hidden');
                 alert('Post flag updated successfully!');
                 fetchAndRenderAdminFeed(`${API_URL}/posts`);
-
             } catch (error) {
-                // This alert will now show the REAL error message from the server
                 alert(`Error: ${error.message}`);
             }
         });
@@ -590,7 +517,7 @@ function addAdminFeedActionListeners() {
 }
 
 // =================================================================
-// 8. GUEST HOMEPAGE FEED (`index.html`)
+// GUEST HOMEPAGE FEED
 // =================================================================
 async function initializeGuestFeed() {
     try {
@@ -623,7 +550,7 @@ async function initializeGuestFeed() {
 }
 
 // =================================================================
-// 9. HELPERS AND CHARTS
+// HELPERS AND CHARTS
 // =================================================================
 function calculatePercentage(trueVotes, falseVotes) {
     const total = trueVotes + falseVotes;
