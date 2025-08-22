@@ -164,7 +164,7 @@ function renderPosts(posts) {
 
             <!-- CORRECTED LOGIC FOR ADMIN REASON -->
             ${
-              (post.adminFlag === 'true' || post.adminFlag === 'false') && post.adminReason
+            (post.adminFlag === 'true' || post.adminFlag === 'false') && post.adminReason && post.adminReason.trim() !== ''
                 ? `
                 <div class="admin-reason mt-4 bg-${post.adminFlag === 'true' ? 'green' : 'red'}-50 border-l-4 border-${post.adminFlag === 'true' ? 'green' : 'red'}-400 rounded-r-lg p-4">
                     <p class="text-sm font-bold text-gray-800">Admin's Note:</p>
@@ -673,7 +673,7 @@ function renderAdminFeedPosts(posts) {
 
             <!-- CORRECTED LOGIC FOR ADMIN REASON -->
             ${
-              (post.adminFlag === 'true' || post.adminFlag === 'false') && post.adminReason
+            (post.adminFlag === 'true' || post.adminFlag === 'false') && post.adminReason && post.adminReason.trim() !== ''
                 ? `
                 <div class="admin-reason mt-4 bg-${post.adminFlag === 'true' ? 'green' : 'red'}-50 border-l-4 border-${post.adminFlag === 'true' ? 'green' : 'red'}-400 rounded-r-lg p-4">
                     <p class="text-sm font-bold text-gray-800">Admin's Note:</p>
