@@ -1,5 +1,6 @@
 const Post = require('../models/post.model');
 const User = require('../models/user.model');
+const AdminLog = require('../models/adminLog.model');
 
 // Get all posts that are pending approval (now with search)
 exports.getPendingPosts = async (req, res) => {
