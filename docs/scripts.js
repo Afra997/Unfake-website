@@ -160,12 +160,18 @@ function renderPosts(posts) {
                     <span class="font-semibold">Admin Flag:</span> <strong class="${flagClass}">${post.adminFlag}</strong>
                 </div>
             </div>
-            ${ (post.adminFlag === 'true' || post.adminFlag === 'false') && post.adminReason && post.adminReason.trim() !== '' ? `
+
+            <!-- THIS IS THE NEWLY ADDED BLOCK -->
+            ${
+              (post.adminFlag === 'true' || post.adminFlag === 'false') && post.adminReason && post.adminReason.trim() !== ''
+                ? `
                 <div class="admin-reason mt-4 bg-${post.adminFlag === 'true' ? 'green' : 'red'}-50 border-l-4 border-${post.adminFlag === 'true' ? 'green' : 'red'}-400 rounded-r-lg p-4">
                     <p class="text-sm font-bold text-gray-800">Admin's Note:</p>
                     <p class="text-sm text-gray-700 mt-1">${post.adminReason}</p>
                 </div>
-            ` : '' }
+                `
+                : ''
+            }
         `;
         feedContainer.appendChild(postElement);
     });
