@@ -2,6 +2,14 @@
 // UNFAKE - FINAL API DRIVEN SCRIPT
 // =================================================================
 
+// =================================================================
+// UNFAKE - FINAL API DRIVEN SCRIPT
+// =================================================================
+
+// =================================================================
+// UNFAKE - FINAL API DRIVEN SCRIPT
+// =================================================================
+
 const API_URL = 'http://localhost:5000/api';
 
 // Helper to get the token
@@ -11,12 +19,8 @@ const getToken = () => localStorage.getItem('token');
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
 
-    // Replace the entire old router with this new one
-document.addEventListener('DOMContentLoaded', () => {
-    const path = window.location.pathname;
-
-    // More robust check for the root/index page
-    if (path.endsWith('/') || path.endsWith('/index.html')) {
+    // This is the final, correct router logic
+    if (path.endsWith('/index.html')) {
         initializeGuestFeed();
     } 
     else if (path.endsWith('/login.html')) {
@@ -28,6 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (path.endsWith('/submit.html')) {
         initializeSubmitPage();
     } 
+
+    else if (path.endsWith('/signup.html')) { 
+    initializeSignupPage();
+    } 
+
     else if (path.endsWith('/admindash.html')) {
         initializeAdminDashboard();
     } 
@@ -35,7 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeAdminModerationPage();
     }
 });
-});
+
+// =================================================================
+// 1. LOGIN PAGE (`login.html`)
+// (The rest of your code starts here)
+// ...
+// =================================================================
+// 1. LOGIN PAGE (`login.html`)
+// (The rest of your code starts here)
+// ...
 
 // =================================================================
 // 1. LOGIN PAGE (`login.html`)
@@ -214,6 +231,44 @@ function initializeSubmitPage() {
         } catch (error) {
             console.error('Submit Error:', error);
             alert(`Submission failed: ${error.message}`);
+        }
+    });
+}
+
+// =================================================================
+// NEW: SIGNUP PAGE (`signup.html`)
+// =================================================================
+function initializeSignupPage() {
+    const signupForm = document.getElementById('signupForm');
+    if (!signupForm) return;
+
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // This will stop the page from reloading!
+
+        // Note: Your form has 'name', 'email', 'password'. The backend expects 'username'.
+        // We will use the 'name' field as the 'username'.
+        const username = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch(`${API_URL}/auth/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || 'Signup failed!');
+            }
+
+            alert('Signup successful! Please log in.');
+            window.location.href = 'login.html'; // Redirect to login page
+
+        } catch (error) {
+            console.error('Signup Error:', error);
+            alert(`Signup failed: ${error.message}`);
         }
     });
 }
@@ -418,65 +473,57 @@ function addModerationActionListeners() {
     });
 }
 
-// =================================================================
-// =================================================================
-// 6. GUEST HOMEPAGE FEED (`index.html`) - DEBUGGING VERSION
+// // =================================================================
+// 6. GUEST HOMEPAGE FEED (`index.html`)
 // =================================================================
 async function initializeGuestFeed() {
-    console.log("DEBUG: Running initializeGuestFeed..."); // Checkpoint 1
-
     try {
         const response = await fetch(`${API_URL}/posts`);
-        console.log("DEBUG: API fetch response received.", response); // Checkpoint 2
-
         if (!response.ok) throw new Error('Failed to fetch posts');
         
         const posts = await response.json();
-        console.log("DEBUG: Posts data received from API:", posts); // Checkpoint 3
-
         const feedContainer = document.getElementById('guest-feed-container');
-        if (!feedContainer) {
-            console.error("DEBUG: CRITICAL ERROR - Could not find the 'guest-feed-container' div in the HTML!");
-            return;
-        }
         
+        // Clear the "Loading..." message
         feedContainer.innerHTML = ''; 
+
         if (posts.length === 0) {
             feedContainer.innerHTML = '<p class="text-gray-500">No posts have been approved yet. Check back later!</p>';
             return;
         }
 
-        console.log("DEBUG: Starting to render posts..."); // Checkpoint 4
-
         posts.forEach(post => {
             const postElement = document.createElement('div');
             postElement.className = 'bg-white p-6 rounded-xl shadow-lg mb-6 post-card';
-            
-            if (typeof calculatePercentage !== 'function') {
-                console.error("DEBUG: CRITICAL ERROR - The calculatePercentage function does not exist!");
-                return;
-            }
 
+            // Simplified HTML for guests - no vote buttons
             postElement.innerHTML = `
                 <h4 class="text-xl font-semibold text-gray-900">${post.title}</h4>
                 <div class="mt-4">
                     <div class="flex justify-between mb-1 text-xs font-bold"><span class="text-green-600">TRUE VOTES</span><span class="text-red-600">FALSE VOTES</span></div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-gradient-to-r from-green-400 to-sky-500 h-2.5 rounded-full" style="width: ${calculatePercentage(post.trueVotes.length, post.falseVotes.length)}%"></div></div>
                 </div>
-                <p class="mt-4 text-sm text-gray-600"><strong>Admin Status:</strong> <span class="${post.adminFlag === 'true' ? 'text-green-600' : post.adminFlag === 'false' ? 'text-red-600' : 'text-gray-700'} font-semibold">${post.adminFlag.charAt(0).toUpperCase() + post.adminFlag.slice(1)}</span></p>
+                <p class="mt-4 text-sm text-gray-600"><strong>Admin Status:</strong> 
+                    <span class="${post.adminFlag === 'true' ? 'text-green-600' : post.adminFlag === 'false' ? 'text-red-600' : 'text-gray-700'} font-semibold">
+                        ${post.adminFlag.charAt(0).toUpperCase() + post.adminFlag.slice(1)}
+                    </span>
+                </p>
             `;
             feedContainer.appendChild(postElement);
         });
 
-        console.log("DEBUG: Finished rendering posts."); // Checkpoint 5
-
     } catch (error) {
-        console.error('DEBUG: Guest feed caught an error:', error); // Checkpoint 6
+        console.error('Guest feed error:', error);
         const feedContainer = document.getElementById('guest-feed-container');
-        if(feedContainer) {
-          feedContainer.innerHTML = '<p class="text-red-500">Could not load posts at this time. Please check the console for errors.</p>';
-        }
+        feedContainer.innerHTML = '<p class="text-red-500">Could not load posts at this time. Please try again later.</p>';
     }
+}
+
+// Make sure this helper function is also present in your file (usually at the very end)
+function calculatePercentage(trueVotes, falseVotes) {
+    const total = trueVotes + falseVotes;
+    if (total === 0) return 50; // Default to 50% if no votes
+    return Math.round((trueVotes / total) * 100);
 }
 
 
@@ -485,12 +532,4 @@ const statsChartCanvas = document.getElementById('statsChart');
 if (statsChartCanvas) {
     const ctx = statsChartCanvas.getContext('2d');
     new Chart(ctx, { type: 'line', data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'True Flags', data: [12, 19, 3, 5, 2, 3, 9], borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', tension: 0.4, fill: true }, { label: 'False Flags', data: [8, 10, 15, 12, 11, 18, 14], borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Weekly Flagging Activity' } }, scales: { y: { beginAtZero: true } } } });
-}
-
-// Helper function to calculate vote percentage for the guest feed
-// This was accidentally omitted in the final script merge.
-function calculatePercentage(trueVotes, falseVotes) {
-    const total = trueVotes + falseVotes;
-    if (total === 0) return 50; // Default to 50% if no votes
-    return Math.round((trueVotes / total) * 100);
 }
