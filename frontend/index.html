@@ -11,14 +11,21 @@
 <body>
     <!-- Header -->
     <header class="bg-white shadow-md sticky top-0 z-20">
-        <nav class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
-            <a href="index.html" class="text-3xl font-extrabold text-sky-600">UNFAKE</a>
-            <div class="space-x-4">
-                <a href="login.html" class="bg-sky-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-sky-700 transition">Log In</a>
-                <a href="signup.html" class="bg-gray-200 text-sky-800 px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-300 transition">Sign Up</a>
-            </div>
-        </nav>
-    </header>
+    <nav class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+        <a href="index.html" class="text-3xl font-extrabold text-sky-600">UNFAKE</a>
+        
+        <!-- MODIFIED THIS DIV -->
+        <div class="flex items-center space-x-4">
+
+            <!-- THIS IS THE NEW LINE YOU ADD -->
+            <span class="text-sm font-medium text-gray-500">You are in Guest Mode</span>
+
+            <!-- These are your existing buttons -->
+            <a href="login.html" class="bg-sky-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-sky-700 transition">Log In</a>
+            <a href="signup.html" class="bg-gray-200 text-sky-800 px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-300 transition">Sign Up</a>
+        </div>
+    </nav>
+</header>
     <!-- Hero -->
     <section class="bg-sky-100 py-20 text-center">
         <h2 class="text-5xl font-extrabold text-sky-800">Verify Before You Share</h2>
