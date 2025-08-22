@@ -139,6 +139,8 @@ function renderPosts(posts) {
         const totalVotes = trueVotes + falseVotes;
         const truePercentage = totalVotes === 0 ? 50 : Math.round((trueVotes / totalVotes) * 100);
 
+        const flagClass = post.adminFlag === 'true' ? 'text-green-600' : post.adminFlag === 'false' ? 'text-red-600' : 'text-gray-700';
+
         postElement.innerHTML = `
             <h3 class="text-xl font-semibold text-gray-900">${post.title}</h3>
             <p class="text-sm text-gray-500 mt-1">Source: <a href="${post.source}" target="_blank" class="text-sky-600 hover:underline">${post.source}</a></p>
@@ -156,13 +158,13 @@ function renderPosts(posts) {
                 <button class="vote-btn bg-green-500 text-white w-32 px-4 py-2 rounded-lg font-semibold" data-post-id="${post._id}" data-vote-type="true">Vote True</button>
                 <button class="vote-btn bg-red-500 text-white w-32 px-4 py-2 rounded-lg font-semibold" data-post-id="${post._id}" data-vote-type="false">Vote False</button>
                 <div class="ml-auto text-sm text-right">
-                    <span class="font-semibold">Admin Flag:</span> <strong class="text-gray-700">${post.adminFlag}</strong>
+                    <span class="font-semibold">Admin Flag:</span> <strong class="${flagClass}">${post.adminFlag}</strong>
                 </div>
             </div>
 
-            <!-- NEW: Conditionally render the admin reason box -->
+            <!-- CORRECTED LOGIC FOR ADMIN REASON -->
             ${
-              post.adminFlag !== 'unverified' && post.adminReason
+              (post.adminFlag === 'true' || post.adminFlag === 'false') && post.adminReason
                 ? `
                 <div class="admin-reason mt-4 bg-${post.adminFlag === 'true' ? 'green' : 'red'}-50 border-l-4 border-${post.adminFlag === 'true' ? 'green' : 'red'}-400 rounded-r-lg p-4">
                     <p class="text-sm font-bold text-gray-800">Admin's Note:</p>
@@ -646,38 +648,32 @@ async function fetchAndRenderAdminFeed(url) {
 
 function renderAdminFeedPosts(posts) {
     const feedContainer = document.querySelector('main');
-    // Clear old posts
     feedContainer.querySelectorAll('.post-container').forEach(post => post.remove());
-
     posts.forEach(post => {
         const postElement = document.createElement('div');
         postElement.className = 'bg-white p-6 rounded-xl shadow-lg mb-6 post-container';
-        
         const flagClass = post.adminFlag === 'true' ? 'text-green-600' : post.adminFlag === 'false' ? 'text-red-600' : 'text-gray-500';
 
         postElement.innerHTML = `
             <h3 class="text-xl font-semibold text-gray-900">${post.title}</h3>
             <p class="text-sm text-gray-500 my-2">
-    Source: <a href="${post.source}" target="_blank" class="text-sky-600 hover:underline">${post.source}</a> | User: <span class="font-semibold">${post.submittedBy?.username || 'N/A'}</span>
-</p>
+                Source: <a href="${post.source}" target="_blank" class="text-sky-600 hover:underline">${post.source}</a> | User: <span class="font-semibold">${post.submittedBy?.username || 'N/A'}</span>
+            </p>
             <p class="text-gray-700 my-4">${post.description}</p>
             <p class="text-sm font-medium">Current Flag: <strong class="${flagClass}">${post.adminFlag}</strong></p>
-            
             <div class="flex items-center gap-3 mt-4">
                 <button class="admin-feed-btn bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600" data-post-id="${post._id}" data-action="flag-true">Flag True</button>
                 <button class="admin-feed-btn bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600" data-post-id="${post._id}" data-action="flag-false">Flag False</button>
                 <button class="admin-feed-btn bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-600" data-post-id="${post._id}" data-action="delete">Delete</button>
             </div>
-            
-            <!-- Hidden reason box for this specific post -->
             <div class="flag-reason-box hidden mt-3" data-post-id="${post._id}">
                 <textarea class="w-full p-2 border border-gray-300 rounded-lg mb-2" rows="2" placeholder="Add reason for flag...">${post.adminReason || ''}</textarea>
                 <button class="submit-reason-btn bg-sky-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-700">Submit Reason</button>
             </div>
 
-            <!-- NEW: Display the saved admin reason if it exists -->
+            <!-- CORRECTED LOGIC FOR ADMIN REASON -->
             ${
-              post.adminFlag !== 'unverified' && post.adminReason
+              (post.adminFlag === 'true' || post.adminFlag === 'false') && post.adminReason
                 ? `
                 <div class="admin-reason mt-4 bg-${post.adminFlag === 'true' ? 'green' : 'red'}-50 border-l-4 border-${post.adminFlag === 'true' ? 'green' : 'red'}-400 rounded-r-lg p-4">
                     <p class="text-sm font-bold text-gray-800">Admin's Note:</p>
@@ -689,7 +685,6 @@ function renderAdminFeedPosts(posts) {
         `;
         feedContainer.appendChild(postElement);
     });
-
     addAdminFeedActionListeners();
 }
 
