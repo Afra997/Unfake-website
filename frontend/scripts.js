@@ -321,6 +321,9 @@ async function initializeAdminDashboard() {
     };
     fetchAllPosts(); // Initial fetch
     document.getElementById('post-search-bar').addEventListener('keyup', (e) => fetchAllPosts(e.target.value.trim()));
+
+    initializeAdminLog(); 
+    initializeUserPieChart(); 
 }
 
 function renderUsers(users) {
@@ -343,7 +346,7 @@ function renderUsers(users) {
 
         row.innerHTML = `
             <td class="p-3 font-medium">${user.email}</td>
-            <td class="p-3">...</td> <!-- Post count not implemented yet -->
+            <td class="p-3 font-medium text-center">${user.trueVotesCount || 0} : ${user.falseVotesCount || 0}</td>
             <td class="p-3"><span class="${statusClass} text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">${user.status}</span></td>
             <td class="p-3 text-center space-x-2">${actionButtons}</td>
         `;
@@ -725,4 +728,108 @@ function addAdminFeedActionListeners() {
             }
         });
     });
+}
+
+// =================================================================
+// NEW: ADMIN DASHBOARD USER PIE CHART
+// =================================================================
+async function initializeUserPieChart() {
+    const ctx = document.getElementById('userPieChart');
+    if (!ctx) return; // Don't run if the canvas isn't on the page
+
+    try {
+        const response = await fetch(`${API_URL}/admin/user-chart-stats`, {
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+        });
+        if (!response.ok) throw new Error('Failed to fetch chart data');
+
+        const data = await response.json();
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            position: 'right', // The chart type you wanted!
+            data: {
+                labels: [
+                    'Active (Established)',
+                    'Active (New)',
+                    'Temp Banned',
+                    'Perm Banned'
+                ],
+                datasets: [{
+                    label: 'User Status',
+
+                    // The order of data MUST match the order of labels
+                    data: [
+                        data.oldActive,
+                        data.newActive,
+                        data.tempBanned,
+                        data.permBanned
+                    ],
+                    backgroundColor: [
+                        '#0ea5e9', // sky-500 for Old Active
+                        '#67e8f9', // cyan-300 for New Active
+                        '#f59e0b', // amber-500 for Temp Banned
+                        '#ef4444'  // red-500 for Perm Banned
+                    ],
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                
+                plugins: {
+                    legend: {
+                        position: 'right', // Place labels at the bottom like your example
+                    },
+                    title: {
+                        display: false,
+                        text: 'User Distribution by Status',
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Failed to initialize user pie chart:', error);
+        // Optionally display an error message on the canvas
+    }
+}
+
+// =================================================================
+// ADMIN ACTIVITY LOG (This was the missing function)
+// =================================================================
+async function initializeAdminLog() {
+    // First, check if the log list element exists on the page
+    const logList = document.getElementById('admin-log-list');
+    if (!logList) return; // If not, stop running to prevent errors
+
+    try {
+        const response = await fetch(`${API_URL}/admin/logs`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+        if (!response.ok) throw new Error('Failed to fetch logs');
+        
+        const logs = await response.json();
+        logList.innerHTML = ''; // Clear loading message
+
+        if (logs.length === 0) {
+            logList.innerHTML = '<li>No admin actions have been logged yet.</li>';
+            return;
+        }
+
+        logs.forEach(log => {
+            const li = document.createElement('li');
+            li.className = 'p-3 bg-gray-50 rounded-lg flex justify-between items-center';
+            
+            const actionText = `<span class="font-semibold">${log.admin.username}</span>: ${log.details}`;
+            const timeText = `<span class="text-xs text-gray-500">${new Date(log.createdAt).toLocaleString()}</span>`;
+
+            li.innerHTML = `<div>${actionText}</div><div>${timeText}</div>`;
+            logList.appendChild(li);
+        });
+
+    } catch (error) {
+        console.error('Failed to load admin logs:', error);
+        logList.innerHTML = '<li class="text-red-500">Could not load logs.</li>';
+    }
 }

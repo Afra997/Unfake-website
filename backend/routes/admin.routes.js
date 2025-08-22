@@ -25,4 +25,7 @@ router.put('/users/:userId/status', [authMiddleware, adminMiddleware], adminCont
 
 router.get('/posts', [authMiddleware, adminMiddleware], adminController.getAllPostsForAdmin);
 
+// GET /api/admin/user-chart-stats - Get data for the user pie chart
+router.get('/user-chart-stats', [authMiddleware, adminMiddleware], adminController.getUserStatsForChart);
+
 module.exports = router;

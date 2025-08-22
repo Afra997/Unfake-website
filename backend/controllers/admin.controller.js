@@ -73,18 +73,68 @@ exports.getDashboardStats = async (req, res) => {
 };
 
 // Get a list of all users (now with search)
+// Get a list of all users WITH their calculated vote counts
 exports.getAllUsers = async (req, res) => {
-  try {
-    const searchTerm = req.query.q || '';
-    const regex = new RegExp(searchTerm, 'i');
+    try {
+        const searchTerm = req.query.q || '';
+        const regex = new RegExp(searchTerm, 'i');
 
-    const users = await User.find({
-      $or: [{ username: regex }, { email: regex }]
-    }).select('-password');
-    res.json(users);
-  } catch (err) {
-    res.status(500).send('Server Error');
-  }
+        // This is a powerful MongoDB Aggregation Pipeline
+        const usersWithVoteCounts = await User.aggregate([
+            // Stage 1: Match users based on the search term first (for efficiency)
+            {
+                $match: {
+                    $or: [{ username: regex }, { email: regex }]
+                }
+            },
+            // Stage 2: Join with the 'posts' collection to find their votes
+            {
+                $lookup: {
+                    from: 'posts', // The collection to join with
+                    let: { userId: '$_id' },
+                    pipeline: [
+                        // Find posts where this user's ID is in either vote array
+                        { $match: { $expr: { $or: [{ $in: ['$$userId', '$trueVotes'] }, { $in: ['$$userId', '$falseVotes'] }] } } },
+                    ],
+                    as: 'votedPosts' // The new array field with posts they voted on
+                }
+            },
+            // Stage 3: Add new fields for true/false vote counts
+            {
+                $addFields: {
+                    trueVotesCount: {
+                        $size: {
+                            // Filter the votedPosts to count only where they voted true
+                            $filter: { input: '$votedPosts', as: 'post', cond: { $in: ['$_id', '$$post.trueVotes'] } }
+                        }
+                    },
+                    falseVotesCount: {
+                        $size: {
+                            // Filter the votedPosts to count only where they voted false
+                            $filter: { input: '$votedPosts', as: 'post', cond: { $in: ['$_id', '$$post.falseVotes'] } }
+                        }
+                    }
+                }
+            },
+            // Stage 4: Remove the large 'votedPosts' array and the password for a clean response
+            {
+                $project: {
+                    username: 1,
+                    email: 1,
+                    role: 1,
+                    status: 1,
+                    createdAt: 1,
+                    trueVotesCount: 1,
+                    falseVotesCount: 1
+                }
+            }
+        ]);
+
+        res.json(usersWithVoteCounts);
+    } catch (err) {
+        console.error('Error fetching users with vote counts:', err);
+        res.status(500).send('Server Error');
+    }
 };
 
 exports.getAllPostsForAdmin = async (req, res) => {
@@ -124,6 +174,28 @@ exports.manageUserStatus = async (req, res) => {
       return res.status(404).json({ message: 'User not found.' });
     }
     res.json(user);
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+};
+
+// NEW: Get user statistics for the pie chart
+exports.getUserStatsForChart = async (req, res) => {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    // Run all count queries in parallel for efficiency
+    const [tempBanned, permBanned, newActive, oldActive] = await Promise.all([
+      User.countDocuments({ status: 'temp-banned' }),
+      User.countDocuments({ status: 'perm-banned' }),
+      // New and Active users
+      User.countDocuments({ status: 'active', createdAt: { $gte: sevenDaysAgo } }),
+      // Old (Established) and Active users
+      User.countDocuments({ status: 'active', createdAt: { $lt: sevenDaysAgo } })
+    ]);
+
+    res.json({ tempBanned, permBanned, newActive, oldActive });
   } catch (err) {
     res.status(500).send('Server Error');
   }
