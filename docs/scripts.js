@@ -159,6 +159,18 @@ function renderPosts(posts) {
                     <span class="font-semibold">Admin Flag:</span> <strong class="text-gray-700">${post.adminFlag}</strong>
                 </div>
             </div>
+
+            <!-- NEW: Conditionally render the admin reason box -->
+            ${
+              post.adminFlag !== 'unverified' && post.adminReason
+                ? `
+                <div class="admin-reason mt-4 bg-${post.adminFlag === 'true' ? 'green' : 'red'}-50 border-l-4 border-${post.adminFlag === 'true' ? 'green' : 'red'}-400 rounded-r-lg p-4">
+                    <p class="text-sm font-bold text-gray-800">Admin's Note:</p>
+                    <p class="text-sm text-gray-700 mt-1">${post.adminReason}</p>
+                </div>
+                `
+                : ''
+            }
         `;
         feedContainer.appendChild(postElement);
     });
@@ -659,9 +671,21 @@ function renderAdminFeedPosts(posts) {
             
             <!-- Hidden reason box for this specific post -->
             <div class="flag-reason-box hidden mt-3" data-post-id="${post._id}">
-                <textarea class="w-full p-2 border border-gray-300 rounded-lg mb-2" rows="2" placeholder="Add reason for flag..."></textarea>
+                <textarea class="w-full p-2 border border-gray-300 rounded-lg mb-2" rows="2" placeholder="Add reason for flag...">${post.adminReason || ''}</textarea>
                 <button class="submit-reason-btn bg-sky-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-700">Submit Reason</button>
             </div>
+
+            <!-- NEW: Display the saved admin reason if it exists -->
+            ${
+              post.adminFlag !== 'unverified' && post.adminReason
+                ? `
+                <div class="admin-reason mt-4 bg-${post.adminFlag === 'true' ? 'green' : 'red'}-50 border-l-4 border-${post.adminFlag === 'true' ? 'green' : 'red'}-400 rounded-r-lg p-4">
+                    <p class="text-sm font-bold text-gray-800">Admin's Note:</p>
+                    <p class="text-sm text-gray-700 mt-1">${post.adminReason}</p>
+                </div>
+                `
+                : ''
+            }
         `;
         feedContainer.appendChild(postElement);
     });
