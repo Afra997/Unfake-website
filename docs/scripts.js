@@ -10,7 +10,7 @@
 // UNFAKE - FINAL API DRIVEN SCRIPT
 // =================================================================
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://unfake-website.onrender.com';
 
 // Helper to get the token
 const getToken = () => localStorage.getItem('token');
