@@ -23,4 +23,6 @@ router.get('/users', [authMiddleware, adminMiddleware], adminController.getAllUs
 // PUT /api/admin/users/:userId/status - Change a user's status
 router.put('/users/:userId/status', [authMiddleware, adminMiddleware], adminController.manageUserStatus);
 
+router.get('/posts', [authMiddleware, adminMiddleware], adminController.getAllPostsForAdmin);
+
 module.exports = router;

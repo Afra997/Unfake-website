@@ -40,6 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (path.endsWith('/admindash.html')) {
         initializeAdminDashboard();
     } 
+
+    else if (path.endsWith('/adminfeed.html')) { // <-- ADD THIS NEW BLOCK
+    initializeAdminFeedPage();
+    }
+
     else if (path.endsWith('/admin.html')) {
         initializeAdminModerationPage();
     }
@@ -279,7 +284,7 @@ function initializeSignupPage() {
 async function initializeAdminDashboard() {
     if (!getToken()) return window.location.href = 'login.html';
     
-    // Fetch and display stats
+    // --- 1. Fetch Stats (no change) ---
     try {
         const response = await fetch(`${API_URL}/admin/stats`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
         const stats = await response.json();
@@ -291,22 +296,31 @@ async function initializeAdminDashboard() {
         console.error('Failed to fetch admin stats:', error);
     }
 
-    // Fetch and display users
+    // --- 2. User Table Logic (with the fix) ---
     const fetchUsers = async (query = '') => {
         try {
+            // THIS LINE IS NOW CORRECTED
             const response = await fetch(`${API_URL}/admin/users?q=${query}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
-            const users = await response.json();
-            renderUsers(users);
+            renderUsers(await response.json());
         } catch (error) {
             console.error('Failed to fetch users:', error);
         }
     };
-    
-    // Initial user fetch
     fetchUsers();
+    // This selector needs the id="user-management" on the user table div in your HTML
+    document.querySelector('#user-management .search-bar').addEventListener('keyup', (e) => fetchUsers(e.target.value.trim()));
 
-    // Add search functionality
-    document.querySelector('.search-bar').addEventListener('keyup', (e) => fetchUsers(e.target.value.trim()));
+    // --- 3. All Posts Table Logic (no change) ---
+    const fetchAllPosts = async (query = '') => {
+        try {
+            const response = await fetch(`${API_URL}/admin/posts?q=${query}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            renderAllPosts(await response.json());
+        } catch (error) {
+            console.error('Failed to fetch all posts:', error);
+        }
+    };
+    fetchAllPosts(); // Initial fetch
+    document.getElementById('post-search-bar').addEventListener('keyup', (e) => fetchAllPosts(e.target.value.trim()));
 }
 
 function renderUsers(users) {
@@ -364,6 +378,58 @@ function addUserActionListeners() {
 
             } catch (error) {
                 alert(`Error: ${error.message}`);
+            }
+        });
+    });
+}
+
+// =================================================================
+// HELPER FUNCTIONS FOR THE NEW POSTS TABLE
+// =================================================================
+function renderAllPosts(posts) {
+    const tableBody = document.querySelector('#all-posts-management table tbody');
+    if (!tableBody) return;
+    tableBody.innerHTML = ''; // Clear existing rows
+
+    posts.forEach(post => {
+        const row = document.createElement('tr');
+        row.className = 'border-b table-row';
+        const statusClass = post.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+        const flagClass = post.adminFlag === 'true' ? 'text-green-600' : post.adminFlag === 'false' ? 'text-red-600' : 'text-gray-500';
+
+        row.innerHTML = `
+            <td class="p-3 font-medium" title="${post.title}">${post.title.substring(0, 30)}...</td>
+            <td class="p-3">${post.submittedBy?.username || 'N/A'}</td>
+            <td class="p-3"><span class="${statusClass} text-xs font-medium px-2.5 py-0.5 rounded-full">${post.status}</span></td>
+            <td class="p-3 font-semibold ${flagClass}">${post.adminFlag}</td>
+            <td class="p-3 text-center">
+                <button class="post-action-btn bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded" data-post-id="${post._id}" data-action="delete">Delete</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+    addPostActionListeners();
+}
+
+function addPostActionListeners() {
+    document.querySelectorAll('.post-action-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const { postId, action } = e.target.dataset;
+            if (action === 'delete') {
+                if (!confirm('Are you sure you want to permanently delete this post? This cannot be undone.')) return;
+                try {
+                    const response = await fetch(`${API_URL}/admin/posts/${postId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${getToken()}` }
+                    });
+                    if (!response.ok) throw new Error((await response.json()).message);
+                    
+                    // To refresh the list, we simply re-trigger the search
+                    document.getElementById('post-search-bar').dispatchEvent(new Event('keyup'));
+                    alert('Post deleted successfully.');
+                } catch (error) {
+                    alert(`Error: ${error.message}`);
+                }
             }
         });
     });
@@ -532,4 +598,131 @@ const statsChartCanvas = document.getElementById('statsChart');
 if (statsChartCanvas) {
     const ctx = statsChartCanvas.getContext('2d');
     new Chart(ctx, { type: 'line', data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'True Flags', data: [12, 19, 3, 5, 2, 3, 9], borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', tension: 0.4, fill: true }, { label: 'False Flags', data: [8, 10, 15, 12, 11, 18, 14], borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Weekly Flagging Activity' } }, scales: { y: { beginAtZero: true } } } });
+}
+
+
+// =================================================================
+// 7. ADMIN FEED PAGE (`adminfeed.html`) - NEW
+// =================================================================
+async function initializeAdminFeedPage() {
+    if (!getToken()) return window.location.href = 'login.html';
+
+    const searchBar = document.querySelector('.search-bar');
+    searchBar.addEventListener('keyup', (e) => {
+        const searchTerm = e.target.value.trim();
+        // We can just reuse the user search endpoint for this
+        const url = searchTerm ? `${API_URL}/posts/search?q=${searchTerm}` : `${API_URL}/posts`;
+        fetchAndRenderAdminFeed(url);
+    });
+
+    // Initial fetch
+    fetchAndRenderAdminFeed(`${API_URL}/posts`);
+}
+
+async function fetchAndRenderAdminFeed(url) {
+    try {
+        const response = await fetch(url); // No token needed for public feed
+        const posts = await response.json();
+        renderAdminFeedPosts(posts);
+    } catch (error) {
+        console.error('Failed to fetch admin feed posts:', error);
+    }
+}
+
+function renderAdminFeedPosts(posts) {
+    const feedContainer = document.querySelector('main');
+    // Clear old posts
+    feedContainer.querySelectorAll('.post-container').forEach(post => post.remove());
+
+    posts.forEach(post => {
+        const postElement = document.createElement('div');
+        postElement.className = 'bg-white p-6 rounded-xl shadow-lg mb-6 post-container';
+        
+        const flagClass = post.adminFlag === 'true' ? 'text-green-600' : post.adminFlag === 'false' ? 'text-red-600' : 'text-gray-500';
+
+        postElement.innerHTML = `
+            <h3 class="text-xl font-semibold text-gray-900">${post.title}</h3>
+            <p class="text-sm text-gray-500 my-2">
+    Source: <a href="${post.source}" target="_blank" class="text-sky-600 hover:underline">${post.source}</a> | User: <span class="font-semibold">${post.submittedBy?.username || 'N/A'}</span>
+</p>
+            <p class="text-gray-700 my-4">${post.description}</p>
+            <p class="text-sm font-medium">Current Flag: <strong class="${flagClass}">${post.adminFlag}</strong></p>
+            
+            <div class="flex items-center gap-3 mt-4">
+                <button class="admin-feed-btn bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600" data-post-id="${post._id}" data-action="flag-true">Flag True</button>
+                <button class="admin-feed-btn bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600" data-post-id="${post._id}" data-action="flag-false">Flag False</button>
+                <button class="admin-feed-btn bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-600" data-post-id="${post._id}" data-action="delete">Delete</button>
+            </div>
+            
+            <!-- Hidden reason box for this specific post -->
+            <div class="flag-reason-box hidden mt-3" data-post-id="${post._id}">
+                <textarea class="w-full p-2 border border-gray-300 rounded-lg mb-2" rows="2" placeholder="Add reason for flag..."></textarea>
+                <button class="submit-reason-btn bg-sky-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-700">Submit Reason</button>
+            </div>
+        `;
+        feedContainer.appendChild(postElement);
+    });
+
+    addAdminFeedActionListeners();
+}
+
+function addAdminFeedActionListeners() {
+    // Listener for Flag True/False and Delete buttons
+    document.querySelectorAll('.admin-feed-btn').forEach(btn => {
+        btn.addEventListener('click', async e => {
+            const { postId, action } = e.target.dataset;
+            const postContainer = e.target.closest('.post-container');
+
+            if (action === 'delete') {
+                if (!confirm('Are you sure you want to delete this post permanently?')) return;
+                try {
+                    const response = await fetch(`${API_URL}/admin/posts/${postId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${getToken()}` }
+                    });
+                    if (!response.ok) throw new Error('Failed to delete');
+                    postContainer.remove(); // Remove from UI on success
+                } catch (error) {
+                    alert('Error deleting post.');
+                }
+            } else { // It's a flag action
+                // Show the reason box for this post
+                const reasonBox = postContainer.querySelector('.flag-reason-box');
+                reasonBox.classList.remove('hidden');
+                // Store the action on the submit button for later use
+                reasonBox.querySelector('.submit-reason-btn').dataset.action = action;
+            }
+        });
+    });
+
+    // Listener for the "Submit Reason" buttons
+    document.querySelectorAll('.submit-reason-btn').forEach(btn => {
+        btn.addEventListener('click', async e => {
+            const reasonBox = e.target.closest('.flag-reason-box');
+            const postId = reasonBox.dataset.postId;
+            const action = e.target.dataset.action; // Get the action we stored
+            const reason = reasonBox.querySelector('textarea').value;
+
+            if (!reason) return alert('Please provide a reason for the flag.');
+
+            const adminFlag = action === 'flag-true' ? 'true' : 'false';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/posts/${postId}/moderate`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+                    body: JSON.stringify({ adminFlag, adminReason: reason })
+                });
+                if (!response.ok) throw new Error('Failed to update flag.');
+                
+                // Success! Hide the reason box and refresh the feed to show the change
+                reasonBox.classList.add('hidden');
+                alert('Post flag updated successfully!');
+                fetchAndRenderAdminFeed(`${API_URL}/posts`);
+
+            } catch (error) {
+                alert('Error updating flag.');
+            }
+        });
+    });
 }

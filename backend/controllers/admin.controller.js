@@ -87,6 +87,22 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+exports.getAllPostsForAdmin = async (req, res) => {
+  try {
+    const searchTerm = req.query.q || '';
+    const regex = new RegExp(searchTerm, 'i');
+    
+    const posts = await Post.find({
+      $or: [{ title: regex }, { description: regex }]
+    })
+      .sort({ createdAt: 'desc' })
+      .populate('submittedBy', 'username'); // Or 'username'
+    res.json(posts);
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+};
+
 // Update a user's status (ban, unban, etc.)
 exports.manageUserStatus = async (req, res) => {
   try {

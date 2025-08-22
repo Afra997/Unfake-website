@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Feed - UNFAKE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="main.css">
+    <!-- You might need a new CSS file if you add unique styles -->
+</head>
+<body>
+    <!-- CORRECT Admin Header -->
+    <header class="bg-white shadow-md sticky top-0 z-20">
+        <nav class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="admindash.html" class="text-3xl font-bold text-sky-600">UNFAKE <span class="text-red-500">Admin</span></a>
+            <div class="flex items-center space-x-6">
+                <!-- This is the new active link -->
+                <a href="adminfeed.html" class="font-semibold text-sky-600 border-b-2 border-sky-600 pb-1">Manage Feed</a>
+                
+                <a href="admindash.html" class="font-semibold text-gray-600 hover:text-sky-600 transition">Dashboard</a>
+                <a href="admin.html" class="font-semibold text-gray-600 hover:text-sky-600 transition">Moderation</a>
+                <a href="index.html" class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">Manage Approved Posts</h2>
+            <input type="text" placeholder="Search approved posts..." class="w-1/2 p-2 border border-gray-300 rounded-lg search-bar">
+        </div>
+
+        <!-- Approved posts will be injected here by JavaScript -->
+        
+    </main>
+    <script src="scripts.js"></script>
+</body>
+</html>
